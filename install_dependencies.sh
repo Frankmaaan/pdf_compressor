@@ -3,9 +3,9 @@
 # install_dependencies.sh
 # PDF compression tool depends on the installation script (Ubuntu/WSL)
 
-echo "======================================"
+echo "==================================================="
 echo "PDF compression tool depends on installation script"
-echo "======================================"
+echo "==================================================="
 
 # Check if it is an Ubuntu/Debian system
 if ! command -v apt &> /dev/null; then
@@ -29,9 +29,9 @@ sudo apt install -y poppler-utils
 echo "-install tesseract-ocr..."
 sudo apt install -y tesseract-ocr
 
-#Install Chinese language pack
-echo "-Install Chinese language pack..."
-sudo apt install -y tesseract-ocr-chi-sim tesseract-ocr-chi-tra
+#Install English language pack
+echo "-Install English language pack..."
+sudo apt install -y tesseract-ocr-eng
 
 # Install qpdf
 echo "-install qpdf..."
@@ -77,9 +77,9 @@ else
 fi
 
 echo ""
-echo "======================================"
+echo "=========================================="
 echo "Installation completed! Verifying tools..."
-echo "======================================"
+echo "=========================================="
 
 # Verify installation
 check_tool() {

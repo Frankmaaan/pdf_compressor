@@ -101,12 +101,14 @@ def print_banner():
     """Print the program startup banner."""
     banner = """
 ╔══════════════════════════════════════════════════════════════╗
-║ PDF compression and splitting tool ║
+║ PDF compression and splitting tool                           ║
 ║                                                              ║
-║ Automated processing tool for professional title declaration PDF files based on archive-pdf-tools ║
-║ Implement the "Deconstruction-Analysis-Reconstruction" (DAR) three-stage compression strategy ║
+║ Automated processing tool for professional title declaration ║
+║ PDF files based on archive-pdf-tools                         ║
+║ Implement the "Deconstruction-Analysis-Reconstruction" (DAR) ║
+║ three-stage compression strategy                             ║
 ║                                                              ║
-║ Version: 1.0.0 ║
+║ Version: 1.0.0                                               ║
 ╚══════════════════════════════════════════════════════════════╝
     """
     print(banner)

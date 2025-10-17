@@ -7,13 +7,13 @@
 # External tools that the core depends on (need to be installed in the system):
 # - poppler-utils (includes pdftoppm, pdfinfo)
 # - tesseract-ocr (OCR engine)
-# - tesseract-ocr-chi-sim (Chinese language pack)
+# - tesseract-ocr-eng (English language pack)
 # - archive-pdf-tools (includes recode_pdf)
 # - qpdf (PDF processing tool)
 #
 # Ubuntu/WSL installation command:
 # sudo apt update
-# sudo apt install poppler-utils tesseract-ocr tesseract-ocr-chi-sim qpdf pipx
+# sudo apt install poppler-utils tesseract-ocr tesseract-ocr-eng qpdf pipx
 # pipx install archive-pdf-tools
 # 
 # Or run the installation script:

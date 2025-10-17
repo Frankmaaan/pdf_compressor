@@ -54,7 +54,7 @@ Install necessary tools in Ubuntu/WSL environment:
 sudo apt update
 
 #Install core tools
-sudo apt install poppler-utils tesseract-ocr tesseract-ocr-chi-sim qpdf pipx
+sudo apt install poppler-utils tesseract-ocr tesseract-ocr-eng qpdf pipx
 
 #Install archive-pdf-tools (pipx is recommended)
 pipx install archive-pdf-tools

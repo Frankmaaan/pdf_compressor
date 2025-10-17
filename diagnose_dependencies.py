@@ -135,7 +135,7 @@ def main():
     tools_info = {
         'pdftoppm': 'sudo apt install poppler-utils',
         'pdfinfo': 'sudo apt install poppler-utils', 
-        'tesseract': 'sudo apt install tesseract-ocr tesseract-ocr-chi-sim',
+        'tesseract': 'sudo apt install tesseract-ocr tesseract-ocr-eng',
         'qpdf': 'sudo apt install qpdf',
         'recode_pdf': 'pipx install archive-pdf-tools'
     }
@@ -170,7 +170,7 @@ def main():
             if 'pdftoppm' in apt_tools or 'pdfinfo' in apt_tools:
                 packages.append('poppler-utils')
             if 'tesseract' in apt_tools:
-                packages.append('tesseract-ocr tesseract-ocr-chi-sim')
+                packages.append('tesseract-ocr tesseract-ocr-eng')
             if 'qpdf' in apt_tools:
                 packages.append('qpdf')
             

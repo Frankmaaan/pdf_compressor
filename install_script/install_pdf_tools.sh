@@ -26,9 +26,9 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 # --- Script starts ---
-echo "============================================================"
+echo "======================================================================================="
 echo "Start installing archive-pdf-tools and its dependencies (APT optimized qpdf version)..."
-echo "============================================================"
+echo "======================================================================================="
 
 # --- Step 1: Update the system and install all APT dependency packages ---
 print_info "Step 1/3: Update system package list and install all dependencies (requires sudo permissions)..."
@@ -42,7 +42,6 @@ sudo apt-get install -y \
     poppler-utils \
     tesseract-ocr \
     tesseract-ocr-eng \
-    tesseract-ocr-chi-sim \
     autoconf \
     automake \
     libtool \

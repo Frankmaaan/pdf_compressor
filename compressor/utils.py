@@ -121,7 +121,7 @@ def check_dependencies():
     required_tools = {
         'pdftoppm': 'poppler-utils',
         'pdfinfo': 'poppler-utils',
-        'tesseract': 'tesseract-ocr tesseract-ocr-chi-sim',
+        'tesseract': 'tesseract-ocr tesseract-ocr-eng',
         'qpdf': 'qpdf',
         'recode_pdf': 'archive-pdf-tools (via pipx)'
     }

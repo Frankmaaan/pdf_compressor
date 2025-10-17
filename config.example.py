@@ -1,23 +1,23 @@
 # config.example.py
-# 配置文件示例 - 可以复制为 config.py 并根据需要修改
+# Configuration file example - can be copied as config.py and modified as needed
 
 """
-PDF压缩工具配置文件
+PDF compression tool configuration file
 
-这个文件包含了工具的各种配置选项。
-复制此文件为 config.py 并根据需要修改参数。
+This file contains various configuration options for the tool.
+Copy this file as config.py and modify the parameters as needed.
 """
 
 # =============================================================================
-# 压缩策略配置
+# Compression strategy configuration
 # =============================================================================
 
-# 自定义压缩策略（如果不想使用默认策略）
+# Customize compression strategy (if you don’t want to use the default strategy)
 CUSTOM_STRATEGIES = {
-    # 可以添加自定义的压缩参数序列
-    # 格式：层级 -> 参数列表
+    # You can add a custom compression parameter sequence
+    # Format: Level -> Parameter List
     # 1: {
-    #     "name": "自定义高质量",
+    # "name": "Custom high quality",
     #     "params_sequence": [
     #         {'dpi': 350, 'bg_downsample': 1},
     #         {'dpi': 300, 'bg_downsample': 2},
@@ -26,50 +26,50 @@ CUSTOM_STRATEGIES = {
     # }
 }
 
-# 质量底线设置
-MIN_DPI = 100  # 最低可接受的DPI值
-MAX_BG_DOWNSAMPLE = 6  # 最大背景降采样倍数
+# Quality bottom line setting
+MIN_DPI = 100 # Minimum acceptable DPI value
+MAX_BG_DOWNSAMPLE = 6 # Maximum background downsampling multiple
 
 # =============================================================================
-# 文件处理配置
+#File processing configuration
 # =============================================================================
 
-# 默认目标大小（MB）
+#Default target size (MB)
 DEFAULT_TARGET_SIZE = 2.0
 
-# 默认最大拆分数
+#Default maximum number of splits
 DEFAULT_MAX_SPLITS = 4
 
-# 临时文件清理
-AUTO_CLEANUP_TEMP = True  # 是否自动清理临时文件
-TEMP_DIR_PREFIX = "pdf_compressor_"  # 临时目录前缀
+# Temporary file cleanup
+AUTO_CLEANUP_TEMP = True # Whether to automatically clean up temporary files
+TEMP_DIR_PREFIX = "pdf_compressor_" # Temporary directory prefix
 
 # =============================================================================
-# OCR 配置
+#OCR configuration
 # =============================================================================
 
-# Tesseract 语言设置
+# Tesseract language settings
 OCR_LANGUAGES = {
-    'chinese': 'chi_sim',  # 简体中文
-    'chinese_traditional': 'chi_tra',  # 繁体中文
-    'english': 'eng',  # 英语
-    'mixed': 'chi_sim+eng'  # 中英混合
+    'chinese': 'chi_sim', # Simplified Chinese
+    'chinese_traditional': 'chi_tra', # Traditional Chinese
+    'english': 'eng', # English
+    'mixed': 'chi_sim+eng' # Mixed Chinese and English
 }
 
-# 默认OCR语言
+#Default OCR language
 DEFAULT_OCR_LANG = 'chi_sim'
 
-# OCR处理选项
+# OCR processing options
 OCR_CONFIG = {
     'psm': 1,  # Page Segmentation Mode
     'oem': 1,  # OCR Engine Mode
 }
 
 # =============================================================================
-# 日志配置
+# Log configuration
 # =============================================================================
 
-# 日志级别
+# Log level
 LOG_LEVELS = {
     'DEBUG': 10,
     'INFO': 20,
@@ -80,95 +80,95 @@ LOG_LEVELS = {
 
 DEFAULT_LOG_LEVEL = 'INFO'
 
-# 日志文件设置
+# Log file settings
 LOG_FILE_MAX_SIZE = 10 * 1024 * 1024  # 10MB
-LOG_FILE_BACKUP_COUNT = 3  # 保留的日志文件数量
+LOG_FILE_BACKUP_COUNT = 3 # Number of log files retained
 
 # =============================================================================
-# 性能优化配置
+#Performance optimization configuration
 # =============================================================================
 
-# 并发处理设置（未来版本可能支持）
-MAX_PARALLEL_JOBS = 1  # 目前版本仅支持单线程
+# Concurrent processing settings (may be supported in future versions)
+MAX_PARALLEL_JOBS = 1 # The current version only supports single thread
 
-# 内存使用限制
-MAX_MEMORY_USAGE_MB = 1024  # 最大内存使用量（MB）
+#Memory usage limit
+MAX_MEMORY_USAGE_MB = 1024 # Maximum memory usage (MB)
 
-# 超时设置
-COMMAND_TIMEOUT = 300  # 单个命令最大执行时间（秒）
-TOTAL_PROCESS_TIMEOUT = 1800  # 单个文件最大处理时间（秒）
+# Timeout settings
+COMMAND_TIMEOUT = 300 # Maximum execution time of a single command (seconds)
+TOTAL_PROCESS_TIMEOUT = 1800 # Maximum processing time of a single file (seconds)
 
 # =============================================================================
-# 高级参数配置
+# Advanced parameter configuration
 # =============================================================================
 
-# recode_pdf 高级参数
+# recode_pdf advanced parameters
 RECODE_PDF_ADVANCED = {
-    'fg_slope': None,  # 前景层斜率，None表示使用默认值
-    'bg_slope': None,  # 背景层斜率，None表示使用默认值
-    'mask_compression': 'jbig2',  # 掩码压缩算法: jbig2 或 ccitt
-    'jpeg_quality': None,  # JPEG质量，None表示使用默认值
+    'fg_slope': None, # Foreground layer slope, None means use the default value
+    'bg_slope': None, # Background layer slope, None means use the default value
+    'mask_compression': 'jbig2', #Mask compression algorithm: jbig2 or ccitt
+    'jpeg_quality': None, #JPEG quality, None means use the default value
 }
 
-# pdftoppm 高级参数
+# pdftoppm advanced parameters
 PDFTOPPM_ADVANCED = {
-    'aa': True,  # 启用反锯齿
-    'aaVector': True,  # 启用矢量反锯齿
-    'forceNum': False,  # 强制数字页码
+    'aa': True, # Enable anti-aliasing
+    'aaVector': True, # Enable vector anti-aliasing
+    'forceNum': False, # Force numeric page number
 }
 
 # =============================================================================
-# 文件过滤配置
+#File filtering configuration
 # =============================================================================
 
-# 支持的文件扩展名
+#Supported file extensions
 SUPPORTED_EXTENSIONS = ['.pdf', '.PDF', '.Pdf', '.pDf', '.pdF', '.PdF', '.PDf', '.pDF']
 
-# 文件大小限制
-MIN_FILE_SIZE_MB = 0.1  # 最小处理文件大小
-MAX_FILE_SIZE_MB = 1000  # 最大处理文件大小
+# File size limit
+MIN_FILE_SIZE_MB = 0.1 # Minimum processing file size
+MAX_FILE_SIZE_MB = 1000 # Maximum file size processed
 
 # =============================================================================
-# 输出配置
+# Output configuration
 # =============================================================================
 
-# 输出文件命名
+# Output file naming
 OUTPUT_NAMING = {
-    'compressed_suffix': '_compressed',  # 压缩文件后缀
-    'part_prefix': '_part',  # 拆分文件前缀
-    'timestamp_format': '%Y%m%d_%H%M%S',  # 时间戳格式
+    'compressed_suffix': '_compressed', # Compressed file suffix
+    'part_prefix': '_part', # Split file prefix
+    'timestamp_format': '%Y%m%d_%H%M%S', # Timestamp format
 }
 
-# 是否保留原始文件信息
+# Whether to retain original file information
 PRESERVE_METADATA = True
 
 # =============================================================================
-# 错误处理配置
+# Error handling configuration
 # =============================================================================
 
-# 重试配置
-MAX_RETRIES = 2  # 最大重试次数
-RETRY_DELAY = 5  # 重试间隔（秒）
+# Retry configuration
+MAX_RETRIES = 2 # Maximum number of retries
+RETRY_DELAY = 5 # Retry interval (seconds)
 
-# 错误处理策略
+# Error handling strategy
 ERROR_HANDLING = {
-    'continue_on_error': True,  # 遇到错误时是否继续处理其他文件
-    'save_error_report': True,  # 是否保存错误报告
-    'detailed_traceback': False,  # 是否在日志中包含详细错误跟踪
+    'continue_on_error': True, # Whether to continue processing other files when an error is encountered
+    'save_error_report': True, # Whether to save the error report
+    'detailed_traceback': False, # Whether to include detailed error tracing in the log
 }
 
 # =============================================================================
-# 开发和调试配置
+# Development and debugging configuration
 # =============================================================================
 
-# 调试模式
+#Debug mode
 DEBUG_MODE = False
 
-# 是否保留中间文件（用于调试）
+# Whether to keep intermediate files (for debugging)
 KEEP_INTERMEDIATE_FILES = False
 
-# 性能分析
+#Performance analysis
 ENABLE_PROFILING = False
 
-# 详细命令输出
+# Detailed command output
 VERBOSE_COMMANDS = False

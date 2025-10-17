@@ -1,307 +1,307 @@
-# 故障排除指南
+# Troubleshooting Guide
 
-## 安装相关问题
+## Installation related issues
 
-### 1. pipx相关问题
+### 1. pipx related issues
 
-#### 问题：找不到recode_pdf命令
+#### Problem: recode_pdf command not found
 ```bash
 bash: recode_pdf: command not found
 ```
 
-**解决方案：**
+**Solution:**
 ```bash
-# 方法1：确保pipx路径在PATH中
+#Method 1: Make sure the pipx path is in PATH
 pipx ensurepath
 source ~/.bashrc
 
-# 方法2：手动添加到PATH
+#Method 2: Manually add to PATH
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
-# 方法3：重新安装
+#Method 3: Reinstall
 pipx uninstall archive-pdf-tools
 pipx install archive-pdf-tools
 ```
 
-#### 问题：pipx未安装
+#### Problem: pipx is not installed
 ```bash
 bash: pipx: command not found
 ```
 
-**解决方案：**
+**Solution:**
 ```bash
 # Ubuntu 22.04+
 sudo apt install pipx
 
-# Ubuntu 20.04或更早版本
+# Ubuntu 20.04 or earlier
 sudo apt install python3-pip
 pip3 install --user pipx
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-#### 问题：pipx安装失败
+#### Problem: pipx installation failed
 ```bash
 pipx install archive-pdf-tools
-# 出现权限或依赖错误
+#Permission or dependency error occurs
 ```
 
-**备选方案：**
+**Alternatives:**
 ```bash
-# 使用pip用户安装
+# Install using pip user
 pip3 install --user archive-pdf-tools
 
-# 使用虚拟环境
+# Use virtual environment
 python3 -m venv ~/pdf_env
 source ~/pdf_env/bin/activate
 pip install archive-pdf-tools
 ```
 
-### 2. 系统工具问题
+### 2. System tool issues
 
-#### 问题：tesseract语言包问题
+#### Problem: tesseract language package problem
 ```bash
 Error: Tesseract couldn't load any languages!
 ```
 
-**解决方案：**
+**Solution:**
 ```bash
-# 重新安装语言包
+# Reinstall language pack
 sudo apt install --reinstall tesseract-ocr-chi-sim tesseract-ocr-chi-tra
 
-# 检查语言包
+# Check language pack
 tesseract --list-langs
 
-# 如果仍有问题，安装所有语言包
+# If you still have problems, install all language packs
 sudo apt install tesseract-ocr-all
 ```
 
-#### 问题：poppler-utils版本问题
+#### Problem: poppler-utils version problem
 ```bash
 pdftoppm: error while loading shared libraries
 ```
 
-**解决方案：**
+**Solution:**
 ```bash
-# 更新系统和重新安装
+#Update system and reinstall
 sudo apt update && sudo apt upgrade
 sudo apt install --reinstall poppler-utils
 
-# 检查版本
+# Check version
 pdftoppm -v
 ```
 
-### 3. 权限问题
+### 3. Permission issues
 
-#### 问题：无法写入输出目录
+#### Problem: Unable to write to output directory
 ```bash
 Permission denied: '/path/to/output'
 ```
 
-**解决方案：**
+**Solution:**
 ```bash
-# 检查目录权限
+# Check directory permissions
 ls -la /path/to/output
 
-# 修改权限
+# Modify permissions
 chmod 755 /path/to/output
 
-# 或使用用户主目录
+# Or use the user home directory
 python3 main.py --input test.pdf --output-dir ~/output --allow-splitting
 ```
 
-#### 问题：临时文件权限问题
+#### Problem: Temporary file permissions issue
 ```bash
 PermissionError: [Errno 13] Permission denied: '/tmp/...'
 ```
 
-**解决方案：**
+**Solution:**
 ```bash
-# 清理临时文件
+# Clean up temporary files
 sudo rm -rf /tmp/pdf_compressor_*
 
-# 检查/tmp权限
+# Check /tmp permissions
 ls -la /tmp | grep pdf_compressor
 
-# 设置环境变量使用其他临时目录
+# Set environment variables to use other temporary directories
 export TMPDIR=~/tmp
 mkdir -p ~/tmp
 ```
 
-## 运行时问题
+## Runtime issues
 
-### 1. 内存不足
+### 1. Insufficient memory
 
-#### 症状：
-- 进程被杀死
-- 系统变慢
-- "Killed"消息
+#### symptom:
+- The process is killed
+- System slows down
+- "Killed" message
 
-**解决方案：**
+**Solution:**
 ```bash
-# 检查内存使用
+# Check memory usage
 free -h
 htop
 
-# 处理小文件或减少并发
+# Process small files or reduce concurrency
 python3 main.py --input small_file.pdf --output-dir ./output
 
-# 增加swap空间（如果可能）
+# Increase swap space (if possible)
 sudo fallocate -l 2G /swapfile
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
 ```
 
-### 2. 磁盘空间不足
+### 2. Insufficient disk space
 
-#### 症状：
+#### symptom:
 - "No space left on device"
-- 处理中断
+- handle interrupts
 
-**解决方案：**
+**Solution:**
 ```bash
-# 检查磁盘空间
+# Check disk space
 df -h
 
-# 清理旧的日志和临时文件
+# Clean up old logs and temporary files
 rm -rf logs/*.log.old
 rm -rf /tmp/pdf_compressor_*
 
-# 使用其他磁盘位置
+# Use another disk location
 python3 main.py --input test.pdf --output-dir /mnt/d/output
 ```
 
-### 3. 处理超时
+### 3. Processing timeout
 
-#### 症状：
-- 长时间无响应
-- 进程挂起
+#### symptom:
+- No response for a long time
+- Process hangs
 
-**解决方案：**
+**Solution:**
 ```bash
-# 使用详细模式监控进度
+# Use verbose mode to monitor progress
 python3 main.py --input test.pdf --output-dir ./output --verbose
 
-# 减小文件或预先拆分
-# 检查文件是否损坏
+# Reduce file or pre-split
+# Check if the file is damaged
 pdfinfo test.pdf
 ```
 
-## WSL特定问题
+## WSL specific issues
 
-### 1. 文件路径问题
+### 1. File path problem
 
-#### 问题：找不到Windows文件
+#### Problem: Windows file not found
 ```bash
 No such file or directory: '/mnt/c/...'
 ```
 
-**解决方案：**
+**Solution:**
 ```bash
-# 检查WSL挂载
+# Check WSL mounting
 ls /mnt/c/
 
-# 确保WSL2配置正确
+# Make sure WSL2 is configured correctly
 wsl --list --verbose
 
-# 使用正确的路径格式
+# Use correct path format
 python3 main.py --input "/mnt/c/Users/username/Documents/file.pdf"
 ```
 
-### 2. 性能问题
+### 2. Performance issues
 
-#### 问题：跨文件系统访问慢
+#### Problem: Cross-file system access is slow
 
-**解决方案：**
+**Solution:**
 ```bash
-# 复制文件到WSL文件系统
+# Copy files to WSL file system
 cp /mnt/c/path/to/file.pdf ~/input/
 python3 main.py --input ~/input/file.pdf --output-dir ~/output
 
-# 处理完成后复制回Windows
+#Copy back to Windows after processing is complete
 cp ~/output/* /mnt/c/Users/username/Documents/
 ```
 
-### 3. 编码问题
+### 3. Encoding issues
 
-#### 问题：中文文件名乱码
+#### Problem: Chinese file name is garbled
 
-**解决方案：**
+**Solution:**
 ```bash
-# 设置正确的locale
+# Set the correct locale
 export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 
-# 永久设置
+# Permanent settings
 echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
 echo 'export LC_ALL=zh_CN.UTF-8' >> ~/.bashrc
 ```
 
-## 调试技巧
+## Debugging Tips
 
-### 1. 启用详细日志
+### 1. Enable detailed logging
 ```bash
 python3 main.py --input test.pdf --output-dir ./output --verbose
 ```
 
-### 2. 检查中间文件
+### 2. Check intermediate files
 ```bash
-# 修改代码中的KEEP_INTERMEDIATE_FILES为True
-# 在config.py中设置：
+# Modify KEEP_INTERMEDIATE_FILES in the code to True
+# Set in config.py:
 KEEP_INTERMEDIATE_FILES = True
 ```
 
-### 3. 逐步调试
+### 3. Step by step debugging
 ```bash
-# 先测试单个组件
+# Test a single component first
 pdftoppm -tiff -r 300 test.pdf page
 tesseract page-01.tif output -l chi_sim hocr
 ```
 
-### 4. 使用测试工具
+### 4. Use testing tools
 ```bash
-# 运行完整的工具检查
+# Run full tool check
 python3 test_tool.py
 
-# 检查版本信息
+# Check version information
 python3 test_tool.py --versions
 
-# 创建测试环境
+#Create test environment
 python3 test_tool.py --create-test
 ```
 
-## 获取帮助
+## Get help
 
-### 1. 查看日志
+### 1. View logs
 ```bash
-# 查看最新日志
+# View the latest log
 tail -f logs/process.log
 
-# 搜索错误信息
+#Search for error messages
 grep ERROR logs/process.log
 ```
 
-### 2. 收集系统信息
+### 2. Collect system information
 ```bash
-# 系统版本
+# System version
 lsb_release -a
 
-# 工具版本
+# tool version
 python3 test_tool.py --versions
 
-# 环境变量
+#Environment variables
 echo $PATH
 echo $TMPDIR
 ```
 
-### 3. 重置环境
+### 3. Reset environment
 ```bash
-# 完全重新安装
+# Complete reinstall
 pipx uninstall archive-pdf-tools
 sudo apt remove --purge tesseract-ocr poppler-utils qpdf
 sudo apt autoremove
 
-# 重新运行安装脚本
+# Rerun the installation script
 ./install_dependencies.sh
 ```

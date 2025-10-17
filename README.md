@@ -1,290 +1,290 @@
-# PDF压缩与拆分工具
+# PDF compression and splitting tool
 
-基于archive-pdf-tools的职称申报PDF文件自动化压缩与拆分工具，实现"解构-分析-重建"(DAR)三阶段处理流程。
+An automatic compression and splitting tool for professional title declaration PDF files based on archive-pdf-tools, which implements the "Deconstruction-Analysis-Reconstruction" (DAR) three-stage processing process.
 
-## 功能特性
+## Features
 
-- **智能分层压缩**: 根据文件大小自动选择最优压缩策略
-- **迭代优化算法**: 在质量和文件大小之间寻找最佳平衡点
-- **应急拆分机制**: 当压缩失败时自动拆分文件确保符合大小要求
-- **批量处理**: 支持单文件和目录批量处理
-- **详细日志**: 完整的处理过程记录和错误跟踪
-- **中文支持**: 优化的中文OCR识别
+- **Intelligent Layered Compression**: Automatically select the optimal compression strategy based on file size
+- **Iterative Optimization Algorithm**: Find the best balance between quality and file size
+- **Emergency Split Mechanism**: Automatically split files when compression fails to ensure compliance with size requirements
+- **Batch Processing**: Supports batch processing of single files and directories
+- **Detailed Log**: Complete processing records and error tracking
+- **Chinese Support**: Optimized Chinese OCR recognition
 
-## 技术架构
+## Technical architecture
 
-### DAR三阶段流程
+### DAR three-stage process
 
-1. **解构 (Deconstruct)**: 使用 `pdftoppm` 将PDF转换为高质量图像
-2. **分析 (Analyze)**: 使用 `tesseract` 进行OCR并生成hOCR文件
-3. **重建 (Reconstruct)**: 使用 `recode_pdf` 基于MRC技术重建优化PDF
+1. **Deconstruct**: Use `pdftoppm` to convert PDF to high-quality images
+2. **Analyze**: Use `tesseract` to perform OCR and generate hOCR files
+3. **Reconstruct**: Use `recode_pdf` to reconstruct and optimize PDF based on MRC technology
 
-### 分层压缩策略
+### Layered compression strategy
 
-- **层级1** (2-10MB): 高质量压缩，优先保证质量
-- **层级2** (10-50MB): 平衡压缩，优先避免拆分
-- **层级3** (≥50MB): 极限压缩，激进参数设置
+- **Level 1** (2-10MB): High-quality compression, quality first
+- **Level 2** (10-50MB): Balanced compression, prioritizing splitting
+- **Level 3** (≥50MB): Extreme compression, aggressive parameter settings
 
-## 安装要求
+## Installation requirements
 
-### 系统环境
+### System environment
 
-**仅支持Ubuntu/WSL环境:**
-- Ubuntu 24.04+ 或 WSL2 (推荐)
+**Only supports Ubuntu/WSL environment:**
+- Ubuntu 24.04+ or WSL2 (recommended)
 - Python 3.7+
-- 至少 2GB 可用磁盘空间（用于临时文件）
+- At least 2GB of free disk space (for temporary files)
 
-**注意**: 本项目专为Ubuntu/WSL环境设计和测试，不支持其他操作系统。
+**Note**: This project is designed and tested for Ubuntu/WSL environment and does not support other operating systems.
 
-### 重要说明：pipx安装方式
+### Important note: pipx installation method
 
-本工具使用 `pipx` 安装 `archive-pdf-tools`，以避免污染系统Python环境。安装脚本会自动处理Ubuntu版本的兼容性问题。
+This tool uses `pipx` to install `archive-pdf-tools` to avoid contaminating the system Python environment. The installation script automatically handles Ubuntu version compatibility issues.
 
-如果您之前使用pip安装过archive-pdf-tools，建议先卸载：
+If you have installed archive-pdf-tools using pip before, it is recommended to uninstall it first:
 ```bash
 pip3 uninstall archive-pdf-tools
 ```
 
-### 系统工具依赖
+### System tool dependencies
 
-在Ubuntu/WSL环境中安装必要工具：
+Install necessary tools in Ubuntu/WSL environment:
 
 ```bash
-# 更新包管理器
+# Update package manager
 sudo apt update
 
-# 安装核心工具
+#Install core tools
 sudo apt install poppler-utils tesseract-ocr tesseract-ocr-chi-sim qpdf pipx
 
-# 安装archive-pdf-tools（推荐使用pipx）
+#Install archive-pdf-tools (pipx is recommended)
 pipx install archive-pdf-tools
 
-# 确保PATH配置正确
+# Make sure PATH is configured correctly
 pipx ensurepath
 source ~/.bashrc
 ```
 
-### Python环境
+### Python environment
 
 - Python 3.7+
-- 标准库模块（无需额外安装）
+- Standard library modules (no additional installation required)
 
-## 使用方法
+## How to use
 
-### Windows用户快速开始
+### Quick Start for Windows users
 
 ```batch
-# 使用Windows批处理脚本（自动处理WSL配置）
+# Use Windows batch script (automatically handles WSL configuration)
 pdf_compress.bat C:\Documents\test.pdf
 
-# 允许拆分的批量处理
+# Allow split batch processing
 pdf_compress.bat C:\Documents\PDFs --allow-splitting --target-size 8.0
 ```
 
-### Linux/WSL用户
+### Linux/WSL users
 
-#### 基本用法
+#### Basic usage
 
 ```bash
-# 处理单个文件（允许拆分）
+# Process a single file (split allowed)
 python main.py --input document.pdf --output-dir ./output --allow-splitting
 
-# 处理整个目录
+# Process the entire directory
 python main.py --input ./pdf_folder --output-dir ./processed
 
-# 自定义目标大小
+# Custom target size
 python main.py --input large.pdf --output-dir ./output --target-size 8.0
 ```
 
-### 命令行参数
+### Command line parameters
 
-| 参数 | 类型 | 默认值 | 说明 |
+| Parameters | Type | Default value | Description |
 |------|------|--------|------|
-| `--input` | 必需 | - | 输入PDF文件或目录路径 |
-| `--output-dir` | 必需 | - | 输出目录路径 |
-| `--target-size` | 可选 | 2.0 | 目标文件大小(MB) |
-| `--allow-splitting` | 可选 | False | 允许拆分文件 |
-| `--max-splits` | 可选 | 4 | 最大拆分数量(2-10) |
-| `--copy-small-files` | 可选 | False | 复制小文件到输出目录 |
-| `--check-deps` | 可选 | False | 仅检查依赖工具 |
-| `--verbose` | 可选 | False | 显示详细调试信息 |
+| `--input` | Required | - | Input PDF file or directory path |
+| `--output-dir` | Required | - | Output directory path |
+| `--target-size` | Optional | 2.0 | Target file size (MB) |
+| `--allow-splitting` | Optional | False | Allow splitting of files |
+| `--max-splits` | Optional | 4 | Maximum number of splits (2-10) |
+| `--copy-small-files` | Optional | False | Copy small files to the output directory |
+| `--check-deps` | Optional | False | Only check dependencies |
+| `--verbose` | Optional | False | Show detailed debugging information |
 
-### 使用示例
+### Usage examples
 
 ```bash
-# 检查工具依赖
+# Check tool dependencies
 python -m main --check-deps
 
-# 处理单个文件（将 single.pdf 压缩到目标 5MB 并输出到 out/）
+# Process a single file (compress single.pdf to target 5MB and output to out/)
 python -m main --input single.pdf --output-dir out --target-size 5
 
-# 在批量目录上运行，允许拆分并保留临时目录以便调试失败项
+# Run on bulk directories, allowing splitting and retaining temporary directories for debugging failures
 python -m main --input-dir ./pdfs --output-dir ./out --target-size 3 --allow-splitting --max-splits 4 -k
 
-# 仅检查依赖，不执行压缩（用于诊断）
+# Only check dependencies, do not perform compression (for diagnostics)
 python -m main --check-deps
 
-# 快速输出常用命令示例（从命令行）
-python -m main -?  # 或 --examples
+# Quickly output common command examples (from the command line)
+python -m main -? # or --examples
 ```
 
-### 交互式手动模式（Manual）
+### Interactive manual mode (Manual)
 
 ```bash
-# 启动交互式全手动模式（在终端中按提示输入参数）
+# Start interactive full manual mode (enter parameters as prompted in the terminal)
 python -m main --manual
-# 或短选项（在某些 shell 中 -m 可安全使用）：
+# or short option (-m is safe to use in some shells):
 python -m main -m
 
-# PowerShell 注意：短选项 `-?` 可能会被解释为帮助符号，建议使用长选项 `--examples`。
+# PowerShell Note: The short option `-?` may be interpreted as a help symbol, it is recommended to use the long option `--examples`.
 ```
 
-## 项目结构
+## Project structure
 
 ```
 pdf_compressor/
-├── main.py                 # 主程序入口
-├── orchestrator.py         # 业务流程调度器
+├── main.py # Main program entry
+├── orchestrator.py # Business process scheduler
 ├── compressor/
 │   ├── __init__.py
-│   ├── pipeline.py         # DAR三阶段流程实现
-│   ├── strategy.py         # 分层压缩策略
-│   ├── splitter.py         # PDF拆分逻辑
-│   └── utils.py            # 工具函数
+│ ├── pipeline.py # DAR three-stage process implementation
+│ ├── strategy.py # Layered compression strategy
+│ ├── splitter.py # PDF splitting logic
+│ └── utils.py # Utility function
 ├── logs/
-│   └── process.log         # 处理日志（自动生成）
-├── docs/                   # 项目文档
-├── requirements.txt        # Python依赖
-└── README.md              # 项目说明
+│ └── process.log # Processing log (automatically generated)
+├── docs/ # Project documentation
+├── requirements.txt # Python dependencies
+└── README.md # Project description
 ```
 
-## 算法说明
+## Algorithm description
 
-### 迭代压缩算法
+### Iterative compression algorithm
 
-程序采用启发式搜索算法，从高质量参数开始，逐步降低质量直到满足大小要求：
+The program uses a heuristic search algorithm that starts with high-quality parameters and gradually reduces the quality until the size requirements are met:
 
-1. **优先调整背景降采样** (`bg-downsample`): 对文本清晰度影响最小
-2. **其次降低分辨率** (`dpi`): 影响整体质量但能显著减小文件
+1. **Priority to adjust background downsampling** (`bg-downsample`): minimal impact on text clarity
+2. **Secondly lower the resolution** (`dpi`): affects the overall quality but can significantly reduce the file size
 
-### 拆分策略
+### Split strategy
 
-当压缩失败时启动拆分协议：
+Start the split protocol when compression fails:
 
-1. **智能分片**: 基于文件大小估算最优拆分数量
-2. **渐进式尝试**: 从估算值开始，逐步增加拆分数直到成功
-3. **质量保证**: 对每个分片使用激进压缩策略
+1. **Smart Sharding**: Estimate the optimal number of splits based on file size
+2. **Progressive Try**: Start with the estimated value and gradually increase the number of splits until success
+3. **Quality Assurance**: Use aggressive compression strategy for each shard
 
-## 日志和监控
+## Logging and Monitoring
 
-### 日志文件
+### Log file
 
-- **位置**: `logs/process.log`
-- **内容**: 详细的处理过程、参数选择、错误信息
-- **格式**: 时间戳 + 日志级别 + 模块信息 + 消息
+- **Location**: `logs/process.log`
+- **Content**: Detailed processing process, parameter selection, error message
+- **Format**: timestamp + log level + module information + message
 
-### 处理报告
+### Process report
 
-批量处理后自动生成 `processing_report.txt`，包含：
-- 处理统计信息
-- 成功/失败文件列表
-- 处理时间记录
+`processing_report.txt` is automatically generated after batch processing, including:
+- Process statistics
+- List of successful/failed files
+- Processing time recording
 
-## 性能考量
+## Performance considerations
 
-### 处理时间
+### Processing time
 
-- **单页文档**: 通常30秒-2分钟
-- **多页文档**: 按页数线性增长
-- **大文件**: 可能需要10-30分钟
+- **Single page document**: usually 30 seconds-2 minutes
+- **Multi-page documents**: linear growth by the number of pages
+- **Large Files**: May take 10-30 minutes
 
-### 影响因素
+### Influencing factors
 
-- PDF页数和复杂度
-- 图像分辨率设置
-- 系统硬件性能
-- OCR处理复杂度
+- PDF page count and complexity
+- Image resolution settings
+- System hardware performance
+- OCR processing complexity
 
-### 优化建议
+### Optimization suggestions
 
-- 为大批量任务预留充足时间
-- 在性能较好的机器上运行
-- 考虑使用SSD存储临时文件
+-Allow sufficient time for high-volume tasks
+- Run on a machine with better performance
+- Consider using an SSD to store temporary files
 
-## 故障排除
+## troubleshooting
 
-### 常见问题
+### FAQ
 
-1. **工具未找到错误**
+1. **Tool not found error**
    ```bash
-   # 检查工具安装
+   # Check tool installation
    python main.py --check-deps
    
-   # 重新安装缺失工具
+   # Reinstall missing tools
    sudo apt install poppler-utils tesseract-ocr qpdf pipx
    pipx install archive-pdf-tools
    ```
 
-2. **recode_pdf命令未找到**
+2. **recode_pdf command not found**
    ```bash
-   # 确保pipx路径在PATH中
+   # Make sure the pipx path is in PATH
    pipx ensurepath
    source ~/.bashrc
    ```
 
-3. **内存不足**
-   - 减少并发处理文件数量
-   - 降低初始DPI设置
-   - 确保有足够磁盘空间存储临时文件
+3. **Insufficient memory**
+   - Reduce the number of concurrently processed files
+   - Lower initial DPI settings
+   - Make sure there is enough disk space to store temporary files
 
-4. **OCR识别错误**
-   - 检查tesseract语言包安装
-   - 尝试提高图像分辨率
-   - 确认PDF内容清晰度
+4. **OCR recognition error**
+   - Check tesseract language pack installation
+   - Try increasing the image resolution
+   - Confirm PDF content clarity
 
-5. **权限问题**
+5. **Permission issues**
    ```bash
-   # 确保输出目录有写权限
+   # Make sure the output directory has write permissions
    chmod 755 output_directory
    ```
 
-### 详细排除指南
+### Detailed Exclusion Guide
 
-查看完整的故障排除指南：`docs/TROUBLESHOOTING.md`
+View the complete troubleshooting guide: `docs/TROUBLESHOOTING.md`
 
-### 调试技巧
+### Debugging Tips
 
-- 使用 `--verbose` 参数查看详细信息
-- 检查 `logs/process.log` 文件
-- 逐个处理问题文件以定位问题
+- Use the `--verbose` parameter to view detailed information
+- Check the `logs/process.log` file
+- Process problem files one by one to locate the problem
 
-## 技术支持
+## Technical support
 
-### 日志分析
+### Log analysis
 
-重要日志信息说明：
-- `阶段1 [解构]`: PDF转图像过程
-- `阶段2 [分析]`: OCR处理过程  
-- `阶段3 [重建]`: PDF重建过程
-- `压缩结果大小`: 每次尝试的结果
+Important log information:
+- `Phase 1 [Deconstruction]`: PDF to image process
+- `Phase 2 [Analysis]`: OCR processing
+- `Phase 3 [Reconstruction]`: PDF reconstruction process
+- `Compression result size`: the result of each attempt
 
-### 联系信息
+### contact information
 
-如遇技术问题，请提供：
-1. 完整的错误信息
-2. `logs/process.log` 文件
-3. 问题文件的基本信息（大小、页数等）
-4. 使用的命令和参数
+In case of technical issues, please provide:
+1. Complete error message
+2. `logs/process.log` file
+3. Basic information of the problem file (size, number of pages, etc.)
+4. Commands and parameters used
 
-## 许可证
+## License
 
-本项目基于MIT许可证开源。
+This project is open source under the MIT license.
 
-## 更新日志
+## Update log
 
 ### v1.0.0 (2024-10-09)
-- 初始版本发布
-- 实现完整的DAR处理流程
-- 支持分层压缩策略
-- 集成PDF拆分功能
-- 添加详细日志记录
+- Initial version release
+- Implement a complete DAR processing process
+- Support layered compression strategy
+- Integrated PDF splitting function
+- Add detailed logging

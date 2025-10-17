@@ -1,9 +1,9 @@
 # compressor/__init__.py
 """
-PDF 压缩与拆分工具包
+PDF compression and splitting toolkit
 
-基于archive-pdf-tools的职称申报PDF文件自动化压缩与拆分策略
-实现了"解构-分析-重建"(DAR)三阶段处理流程
+Automatic compression and splitting strategy for professional title declaration PDF files based on archive-pdf-tools
+Implemented the "Deconstruction-Analysis-Reconstruction" (DAR) three-stage processing process
 """
 
 __version__ = "1.0.0"

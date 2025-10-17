@@ -1,70 +1,70 @@
 #!/bin/bash
 
 # run.sh
-# PDF压缩工具快速启动脚本
+# PDF compression tool quick start script
 
-# 设置脚本目录
+# Set script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# 颜色定义
+# Color definition
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 打印彩色文本
+# Print colored text
 print_colored() {
     echo -e "${1}${2}${NC}"
 }
 
-# 显示使用帮助
+# Show usage help
 show_help() {
-    print_colored $BLUE "PDF压缩工具快速启动脚本"
+    print_colored $BLUE "PDF compression tool quick start script"
     echo ""
-    echo "用法: ./run.sh [选项] [PDF文件或目录]"
+    echo "Usage: ./run.sh [options] [PDF file or directory]"
     echo ""
-    echo "选项:"
-    echo "  -h, --help              显示此帮助信息"
-    echo "  -c, --check             检查依赖工具"
-    echo "  -i, --install           安装依赖工具"
-    echo "  -t, --test              运行测试检查"
-    echo "  -s, --split             允许拆分文件"
-    echo "  -v, --verbose           详细输出模式"
-    echo "  -o, --output DIR        指定输出目录（默认: ./output）"
-    echo "  --target-size SIZE      目标文件大小MB（默认: 2.0）"
-    echo "  --max-splits NUM        最大拆分数量（默认: 4）"
+    echo "options:"
+    echo " -h, --help display this help message"
+    echo "-c, --check check dependency tools"
+    echo "-i, --install install dependent tools"
+    echo " -t, --test run test checks"
+    echo " -s, --split allow splitting files"
+    echo "-v, --verbose verbose output mode"
+    echo " -o, --output DIR specifies the output directory (default: ./output)"
+    echo " --target-size SIZE target file size MB (default: 2.0)"
+    echo " --max-splits NUM Maximum number of splits (default: 4)"
     echo ""
-    echo "示例:"
-    echo "  ./run.sh document.pdf                    # 压缩单个文件"
-    echo "  ./run.sh -s document.pdf                 # 压缩并允许拆分"
-    echo "  ./run.sh -o ./processed ./pdf_folder     # 批量处理目录"
-    echo "  ./run.sh -v -s --target-size 8 big.pdf  # 详细模式，8MB目标"
+    echo "Example:"
+    echo " ./run.sh document.pdf # Compress a single file"
+    echo " ./run.sh -s document.pdf # Compress and allow splitting"
+    echo " ./run.sh -o ./processed ./pdf_folder # Batch processing directory"
+    echo " ./run.sh -v -s --target-size 8 big.pdf # Verbose mode, 8MB target"
     echo ""
 }
 
-# 检查Python是否可用
+# Check if Python is available
 check_python() {
     if command -v python3 &> /dev/null; then
         PYTHON_CMD="python3"
     elif command -v python &> /dev/null; then
         PYTHON_CMD="python"
     else
-        print_colored $RED "错误: 未找到Python。请安装Python 3.7+。"
+        print_colored $RED "Error: Python not found. Please install Python 3.7+."
         exit 1
     fi
 }
 
-# 检查main.py是否存在
+# Check if main.py exists
 check_main_script() {
     if [ ! -f "main.py" ]; then
-        print_colored $RED "错误: 未找到main.py文件。请确保在正确的目录中运行此脚本。"
+        print_colored $RED "Error: main.py file not found. Please make sure you are running this script in the correct directory."
         exit 1
     fi
 }
 
-# 解析命令行参数
+# Parse command line parameters
 parse_arguments() {
     OUTPUT_DIR="./output"
     ALLOW_SPLITTING=""
@@ -82,24 +82,24 @@ parse_arguments() {
             -c|--check)
                 check_python
                 check_main_script
-                print_colored $BLUE "检查依赖工具..."
+                print_colored $BLUE "Check dependency tools..."
                 $PYTHON_CMD main.py --check-deps
                 exit $?
                 ;;
             -i|--install)
-                print_colored $BLUE "运行依赖安装脚本..."
+                print_colored $BLUE "Run dependency installation script..."
                 if [ -f "install_dependencies.sh" ]; then
                     chmod +x install_dependencies.sh
                     ./install_dependencies.sh
                 else
-                    print_colored $RED "错误: 未找到install_dependencies.sh文件"
+                    print_colored $RED "Error: install_dependencies.sh file not found"
                     exit 1
                 fi
                 exit $?
                 ;;
             -t|--test)
                 check_python
-                print_colored $BLUE "运行测试检查..."
+                print_colored $BLUE "Run test check..."
                 $PYTHON_CMD test_tool.py
                 exit $?
                 ;;
@@ -124,7 +124,7 @@ parse_arguments() {
                 shift 2
                 ;;
             -*)
-                print_colored $RED "未知选项: $1"
+                print_colored $RED "Unknown option: $1"
                 show_help
                 exit 1
                 ;;
@@ -132,7 +132,7 @@ parse_arguments() {
                 if [ -z "$INPUT_FILE" ]; then
                     INPUT_FILE="$1"
                 else
-                    print_colored $RED "错误: 只能指定一个输入文件或目录"
+                    print_colored $RED "Error: Only one input file or directory can be specified"
                     exit 1
                 fi
                 shift
@@ -141,22 +141,22 @@ parse_arguments() {
     done
 }
 
-# 验证输入文件
+# Verify input file
 validate_input() {
     if [ -z "$INPUT_FILE" ]; then
-        print_colored $RED "错误: 请指定输入PDF文件或目录"
+        print_colored $RED "Error: Please specify the input PDF file or directory"
         echo ""
         show_help
         exit 1
     fi
     
     if [ ! -e "$INPUT_FILE" ]; then
-        print_colored $RED "错误: 输入文件或目录不存在: $INPUT_FILE"
+        print_colored $RED "Error: input file or directory does not exist: $INPUT_FILE"
         exit 1
     fi
 }
 
-# 主执行函数
+# Main execution function
 main() {
     check_python
     check_main_script
@@ -169,7 +169,7 @@ main() {
     
     validate_input
     
-    # 构建命令
+    # Build command
     CMD="$PYTHON_CMD main.py --input \"$INPUT_FILE\" --output-dir \"$OUTPUT_DIR\""
     
     if [ -n "$ALLOW_SPLITTING" ]; then
@@ -188,31 +188,31 @@ main() {
         CMD="$CMD $MAX_SPLITS"
     fi
     
-    # 显示即将执行的命令
-    print_colored $BLUE "执行命令:"
+    # Display the commands to be executed
+    print_colored $BLUE "Execute command:"
     print_colored $YELLOW "$CMD"
     echo ""
     
-    # 创建输出目录
+    #Create output directory
     mkdir -p "$OUTPUT_DIR"
     
-    # 执行命令
+    #Execute command
     eval $CMD
     exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
-        print_colored $GREEN "✅ 处理完成！"
-        print_colored $GREEN "输出文件位置: $OUTPUT_DIR"
+        print_colored $GREEN "✅ Processing completed!"
+        print_colored $GREEN "Output file location: $OUTPUT_DIR"
     else
-        print_colored $RED "❌ 处理失败（退出码: $exit_code）"
-        print_colored $YELLOW "请检查错误信息或查看日志文件: logs/process.log"
+        print_colored $RED "❌ Processing failed (exit code: $exit_code)"
+        print_colored $YELLOW "Please check the error message or view the log file: logs/process.log"
     fi
     
     exit $exit_code
 }
 
-# 设置脚本为可执行
+# Set the script to be executable
 chmod +x "$0"
 
-# 运行主函数
+#Run the main function
 main "$@"

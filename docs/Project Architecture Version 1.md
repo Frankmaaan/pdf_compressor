@@ -1,32 +1,32 @@
-当然，遵照您的要求，我们立即开始项目的迭代开发。
+Of course, in compliance with your request, we will immediately start iterative development of the project.
 
-这是项目的第一版实现，它构建了完整的核心架构和逻辑，并包含了详细的日志记录功能，以便于后续的调试和功能迭代。该架构将功能清晰地划分到不同的模块中，完全遵循了研究报告中提出的设计蓝图。
+This is the first implementation of the project, which builds the complete core architecture and logic, and includes detailed logging functions to facilitate subsequent debugging and feature iterations. The architecture clearly divides functions into different modules and fully follows the design blueprint proposed in the research report.
 
-### **项目架构**
+### **Project Structure**
 
-以下是为您搭建的项目文件结构：
+The following is the project file structure built for you:
 
 pdf\_compressor/  
-├── main.py                 \# 应用程序主入口和命令行接口  
-├── orchestrator.py         \# 核心业务流程调度器  
+├── main.py \# Application main entry and command line interface
+├── orchestrator.py \# Core business process scheduler
 ├── compressor/  
 │   ├── \_\_init\_\_.py  
-│   ├── pipeline.py         \# 封装DAR（解构-分析-重建）三阶段流程  
-│   ├── strategy.py         \# 实现分层压缩策略与迭代优化算法  
-│   ├── splitter.py         \# 实现基于qpdf的PDF拆分逻辑  
-│   └── utils.py            \# 提供通用辅助函数（日志、命令执行、文件操作）  
+│ ├── pipeline.py \# Encapsulates the three-stage process of DAR (deconstruction-analysis-reconstruction)
+│ ├── strategy.py \# Implement layered compression strategy and iterative optimization algorithm
+│ ├── splitter.py \# Implement PDF splitting logic based on qpdf
+│ └── utils.py \# Provides general auxiliary functions (logging, command execution, file operations)
 └── logs/  
-    └── process.log         \# 日志文件输出目录（自动创建）
+    └── process.log \# Log file output directory (automatically created)
 
 ---
 
-### **代码文件**
+### **Code File**
 
-下面是每个文件的详细代码实现。您可以将它们保存到对应的文件中，然后直接运行。
+Below is the detailed code implementation of each file. You can save them to corresponding files and run them directly.
 
 #### **compressor/utils.py**
 
-这个模块提供了整个项目所需的底层辅助功能。
+This module provides the low-level helper functionality needed for the entire project.
 
 Python
 
@@ -41,12 +41,12 @@ from pathlib import Path
 LOG\_DIR \= "logs"
 
 def setup\_logging():  
-    """配置日志记录器，同时输出到控制台和文件。"""  
+    """Configure the logger to output to both the console and a file."""
     log\_dir \= Path(LOG\_DIR)  
     log\_dir.mkdir(exist\_ok=True)  
     log\_file \= log\_dir / "process.log"
 
-    \# 防止重复添加处理器  
+    \# Prevent repeated addition of processors
     if logging.getLogger().hasHandlers():  
         logging.getLogger().handlers.clear()
 
@@ -57,26 +57,26 @@ def setup\_logging():
     )
 
 def get\_file\_size\_mb(file\_path):  
-    """获取文件大小，单位为MB。"""  
+    """Get the file size in MB."""
     try:  
         return os.path.getsize(file\_path) / (1024 \* 1024)  
     except FileNotFoundError:  
-        logging.error(f"文件未找到: {file\_path}")  
+        logging.error(f"File not found: {file\_path}")
         return 0
 
 def run\_command(command, cwd=None):  
     """  
-    执行一个外部命令行命令。
+    Execute an external command line command.
 
     Args:  
-        command (list): 命令及其参数的列表。  
-        cwd (str, optional): 命令执行的工作目录。
+        command (list): A list of commands and their parameters.  
+        cwd (str, optional): Working directory for command execution.
 
     Returns:  
-        bool: 命令是否成功执行。  
+        bool: Whether the command was executed successfully.
     """  
     command\_str \= ' '.join(command)  
-    logging.info(f"执行命令: {command\_str}")  
+    logging.info(f"Execute command: {command\_str}")
     try:  
         result \= subprocess.run(  
             command,  
@@ -88,23 +88,23 @@ def run\_command(command, cwd=None):
             cwd=cwd  
         )  
         if result.stdout:  
-            logging.debug(f"命令输出:\\n{result.stdout}")  
+            logging.debug(f"Command output:\\n{result.stdout}")
         if result.stderr:  
-            logging.warning(f"命令标准错误输出:\\n{result.stderr}")  
+            logging.warning(f"Command standard error output:\\n{result.stderr}")
         return True  
     except subprocess.CalledProcessError as e:  
-        logging.error(f"命令执行失败: {command\_str}")  
-        logging.error(f"返回码: {e.returncode}")  
-        logging.error(f"标准输出:\\n{e.stdout}")  
-        logging.error(f"标准错误:\\n{e.stderr}")  
+        logging.error(f"Command execution failed: {command\_str}")
+        logging.error(f"Return code: {e.returncode}")
+        logging.error(f"standard output:\\n{e.stdout}")
+        logging.error(f"Standard Error:\\n{e.stderr}")
         return False  
     except FileNotFoundError:  
-        logging.error(f"命令未找到: {command}。请确保该工具已安装并在系统PATH中。")  
+        logging.error(f"Command not found: {command}. Please make sure the tool is installed and in the system PATH.")
         return False
 
 #### **compressor/pipeline.py**
 
-此模块封装了与外部工具交互的“解构-分析-重建”流程。
+This module encapsulates the "deconstruct-analyze-reconstruct" process that interacts with external tools.
 
 Python
 
@@ -117,10 +117,10 @@ from. import utils
 
 def deconstruct\_pdf\_to\_images(pdf\_path, temp\_dir, dpi):  
     """  
-    使用 pdftoppm 将 PDF 转换为 TIFF 图像序列。  
-    返回生成的图像文件路径列表。  
+    Convert PDF to TIFF image sequence using pdftoppm.  
+    Returns a list of generated image file paths.
     """  
-    logging.info(f"阶段1 \[解构\]: 开始将 {pdf\_path.name} 转换为图像 (DPI: {dpi})...")  
+    logging.info(f"Phase 1 \[Deconstruction\]: Start converting {pdf\_path.name} to image (DPI: {dpi})...")
     output\_prefix \= temp\_dir / "page"  
     command \= \[  
         "pdftoppm",  
@@ -130,23 +130,23 @@ def deconstruct\_pdf\_to\_images(pdf\_path, temp\_dir, dpi):
         str(output\_prefix)  
     \]  
     if not utils.run\_command(command):  
-        logging.error("PDF解构失败。")  
+        logging.error("PDF deconstruction failed.")
         return None  
       
     image\_files \= sorted(glob.glob(f"{output\_prefix}\-\*.tif"))  
     if not image\_files:  
-        logging.error("未生成任何图像文件。")  
+        logging.error("No image file was generated.")
         return None  
           
-    logging.info(f"成功生成 {len(image\_files)} 页图像。")  
+    logging.info(f"Successfully generated {len(image\_files)} page image.")
     return \[Path(f) for f in image\_files\]
 
 def analyze\_images\_to\_hocr(image\_files, temp\_dir):  
     """  
-    使用 tesseract 对图像进行 OCR，生成并合并 hOCR 文件。  
-    返回合并后的 hOCR 文件路径。  
+    Use tesseract to OCR images, generate and merge hOCR files.  
+    Returns the merged hOCR file path.
     """  
-    logging.info(f"阶段2 \[分析\]: 开始对 {len(image\_files)} 张图像进行 OCR...")  
+    logging.info(f"Phase 2 \[Analysis\]: Start OCR on {len(image\_files)} images...")
     hocr\_files \=  
     for i, img\_path in enumerate(image\_files):  
         output\_prefix \= temp\_dir / img\_path.stem  
@@ -154,37 +154,37 @@ def analyze\_images\_to\_hocr(image\_files, temp\_dir):
             "tesseract",  
             str(img\_path),  
             str(output\_prefix),  
-            "-l", "chi\_sim",  \# 假设为简体中文  
+            "-l", "chi\_sim", \# Assume Simplified Chinese
             "hocr"  
         \]  
         if not utils.run\_command(command):  
-            logging.error(f"对图像 {img\_path.name} 的 OCR 失败。")  
+            logging.error(f"OCR of image {img\_path.name} failed.")
             return None  
         hocr\_files.append(Path(f"{output\_prefix}.hocr"))  
-        logging.info(f"完成 OCR: {i+1}/{len(image\_files)}")
+        logging.info(f"Complete OCR: {i+1}/{len(image\_files)}")
 
-    \# 合并所有 hocr 文件  
+    \# Merge all hocr files
     combined\_hocr\_path \= temp\_dir / "combined.hocr"  
-    logging.info(f"合并 hOCR 文件到 {combined\_hocr\_path}...")  
+    logging.info(f"Merge hOCR files into {combined\_hocr\_path}...")
     try:  
         with open(combined\_hocr\_path, 'wb') as outfile:  
             for hocr\_file in hocr\_files:  
                 with open(hocr\_file, 'rb') as infile:  
                     outfile.write(infile.read())  
     except IOError as e:  
-        logging.error(f"合并 hOCR 文件时出错: {e}")  
+        logging.error(f"Error merging hOCR files: {e}")
         return None
 
-    logging.info("hOCR 文件合并成功。")  
+    logging.info("hOCR files merged successfully.")
     return combined\_hocr\_path
 
 def reconstruct\_pdf(image\_files, hocr\_file, temp\_dir, params, output\_pdf\_path):  
     """  
-    使用 recode\_pdf 重建 PDF。  
+    Use recode\_pdf to reconstruct the PDF.
     """  
-    logging.info(f"阶段3 \[重建\]: 使用参数 {params} 重建 PDF...")  
+    logging.info(f"Phase 3 \[Rebuild\]: Use parameters {params} to rebuild PDF...")
       
-    \# recode\_pdf 需要一个 glob 模式  
+    \# recode\_pdf requires a glob pattern
     image\_stack\_glob \= str(temp\_dir / "page-\*.tif")
 
     command \= \[  
@@ -198,15 +198,15 @@ def reconstruct\_pdf(image\_files, hocr\_file, temp\_dir, params, output\_pdf\_p
     \]  
       
     if not utils.run\_command(command):  
-        logging.error("PDF 重建失败。")  
+        logging.error("PDF reconstruction failed.")
         return False  
           
-    logging.info(f"PDF 重建成功，输出至 {output\_pdf\_path}")  
+    logging.info(f"PDF reconstruction successful, output to {output\_pdf\_path}")
     return True
 
 #### **compressor/strategy.py**
 
-此模块定义了核心的压缩策略和迭代逻辑。
+This module defines the core compression strategy and iteration logic.
 
 Python
 
@@ -217,10 +217,10 @@ import tempfile
 from pathlib import Path  
 from. import utils, pipeline
 
-\# 定义不同层级的压缩策略  
+\# Define compression strategies at different levels
 STRATEGIES \= {  
     1: {  \# 2MB \<= S \< 10MB  
-        "name": "高质量压缩",  
+        "name": "High Quality Compression",
         "params\_sequence": \[  
             {'dpi': 300, 'bg\_downsample': 1},  
             {'dpi': 300, 'bg\_downsample': 2},  
@@ -230,7 +230,7 @@ STRATEGIES \= {
         \]  
     },  
     2: {  \# 10MB \<= S \< 50MB  
-        "name": "平衡压缩",  
+        "name": "Balanced Compression",
         "params\_sequence": \[  
             {'dpi': 300, 'bg\_downsample': 2},  
             {'dpi': 300, 'bg\_downsample': 3},  
@@ -241,7 +241,7 @@ STRATEGIES \= {
         \]  
     },  
     3: {  \# S \>= 50MB  
-        "name": "极限压缩",  
+        "name": "Extreme compression",
         "params\_sequence": \[  
             {'dpi': 200, 'bg\_downsample': 3},  
             {'dpi': 200, 'bg\_downsample': 4},  
@@ -253,65 +253,65 @@ STRATEGIES \= {
 }
 
 def determine\_tier(size\_mb):  
-    """根据文件大小确定处理层级。"""  
+    """Determine the processing level based on file size."""
     if 2 \<= size\_mb \< 10:  
         return 1  
     if 10 \<= size\_mb \< 50:  
         return 2  
     if size\_mb \>= 50:  
         return 3  
-    return 0 \# 小于2MB或无效值
+    return 0 \# Less than 2MB or invalid value
 
 def run\_iterative\_compression(pdf\_path, output\_dir, target\_size\_mb):  
     """  
-    执行迭代压缩流程。  
-    返回 (bool, Path): (是否成功, 输出文件路径)  
+    Execute an iterative compression process.  
+    Return (bool, Path): (whether successful, output file path)
     """  
     original\_size\_mb \= utils.get\_file\_size\_mb(pdf\_path)  
     tier \= determine\_tier(original\_size\_mb)  
       
     if tier \== 0:  
-        logging.warning(f"文件 {pdf\_path.name} 大小不符合压缩范围，跳过。")  
+        logging.warning(f"The size of file {pdf\_path.name} does not meet the compression range, skip.")
         return False, None
 
     strategy \= STRATEGIES\[tier\]  
-    logging.info(f"文件 {pdf\_path.name} (大小: {original\_size\_mb:.2f}MB) 应用策略: 层级 {tier} ({strategy\['name'\]})")
+    logging.info(f"File {pdf\_path.name} (Size: {original\_size\_mb:.2f}MB) Application Strategy: Level {tier} ({strategy\['name'\]})")
 
     for i, params in enumerate(strategy\['params\_sequence'\]):  
-        logging.info(f"--- 第 {i+1}/{len(strategy\['params\_sequence'\])} 次尝试: DPI={params\['dpi'\]}, BG-Downsample={params\['bg\_downsample'\]} \---")  
+        logging.info(f"--- {i+1}/{len(strategy\['params\_sequence'\])} attempt: DPI={params\['dpi'\]}, BG-Downsample={params\['bg\_downsample'\]} \---")
           
         with tempfile.TemporaryDirectory() as temp\_dir\_str:  
             temp\_dir \= Path(temp\_dir\_str)  
             output\_pdf\_path \= temp\_dir / f"output\_{pdf\_path.stem}.pdf"
 
-            \# 1\. 解构  
+            \# 1\. Deconstruction
             image\_files \= pipeline.deconstruct\_pdf\_to\_images(pdf\_path, temp\_dir, params\['dpi'\])  
             if not image\_files: continue
 
-            \# 2\. 分析  
+            \# 2\. Analysis
             hocr\_file \= pipeline.analyze\_images\_to\_hocr(image\_files, temp\_dir)  
             if not hocr\_file: continue
 
-            \# 3\. 重建  
+            \# 3\. Rebuild
             if not pipeline.reconstruct\_pdf(image\_files, hocr\_file, temp\_dir, params, output\_pdf\_path):  
                 continue
 
-            \# 4\. 检查大小  
+            \# 4\. Check size
             result\_size\_mb \= utils.get\_file\_size\_mb(output\_pdf\_path)  
-            logging.info(f"压缩结果大小: {result\_size\_mb:.2f}MB (目标: \< {target\_size\_mb}MB)")
+            logging.info(f"Compressed result size: {result\_size\_mb:.2f}MB (target: \< {target\_size\_mb}MB)")
 
             if result\_size\_mb \<= target\_size\_mb:  
                 final\_path \= output\_dir / f"{pdf\_path.stem}\_compressed.pdf"  
                 output\_pdf\_path.rename(final\_path)  
-                logging.info(f"成功！文件已压缩并保存至: {final\_path}")  
+                logging.info(f"Success! The file has been compressed and saved to: {final\_path}")
                 return True, final\_path
 
-    logging.warning(f"所有压缩尝试均失败，无法将 {pdf\_path.name} 压缩至目标大小。")  
+    logging.warning(f"All compression attempts failed, unable to compress {pdf\_path.name} to target size.")
     return False, None
 
 #### **compressor/splitter.py**
 
-此模块负责在压缩失败时执行PDF拆分。
+This module is responsible for performing PDF splitting when compression fails.
 
 Python
 
@@ -323,28 +323,28 @@ from pathlib import Path
 from. import utils, strategy
 
 def get\_pdf\_page\_count(pdf\_path):  
-    """使用 \`pdfinfo\` 获取PDF的总页数。"""  
+    """Use \`pdfinfo\` to get the total number of pages in the PDF."""
     command \= \["pdfinfo", str(pdf\_path)\]  
-    \# 我们需要自己运行这个命令来捕获输出  
+    \# We need to run this command ourselves to capture the output
     try:  
         result \= subprocess.run(command, check=True, capture\_output=True, text=True, encoding='utf-8')  
         for line in result.stdout.splitlines():  
             if line.startswith("Pages:"):  
                 return int(line.split(":").\[1\]strip())  
     except (subprocess.CalledProcessError, FileNotFoundError) as e:  
-        logging.error(f"获取 {pdf\_path.name} 的页数失败: {e}")  
+        logging.error(f"Failed to obtain the page number of {pdf\_path.name}: {e}")
     return 0
 
 def split\_pdf(pdf\_path, output\_path, start\_page, end\_page):  
     """  
-    使用 qpdf 拆分PDF文件。  
+    Use qpdf to split PDF files.
     """  
-    logging.info(f"正在拆分 {pdf\_path.name}: 页码 {start\_page}\-{end\_page} \-\> {output\_path.name}")  
+    logging.info(f"Splitting {pdf\_path.name}: page number {start\_page}\-{end\_page} \-\> {output\_path.name}")
     command \= \[  
         "qpdf",  
         str(pdf\_path),  
         "--pages",  
-        ".",  \# 代表输入文件  
+        ".", \# represents the input file
         f"{start\_page}\-{end\_page}",  
         "--",  
         str(output\_path)  
@@ -353,22 +353,22 @@ def split\_pdf(pdf\_path, output\_path, start\_page, end\_page):
 
 def run\_splitting\_protocol(pdf\_path, output\_dir, args):  
     """  
-    执行拆分协议。  
+    Execute split agreement.
     """  
-    logging.info(f"为 {pdf\_path.name} 启动应急拆分协议...")  
+    logging.info(f"Start emergency splitting protocol for {pdf\_path.name}...")
     total\_pages \= get\_pdf\_page\_count(pdf\_path)  
     if total\_pages \== 0:  
-        logging.error("无法获取页数，拆分中止。")  
+        logging.error("Unable to obtain page number, split aborted.")
         return
 
-    \# 启发式算法确定初始拆分数量  
+    \# Heuristic algorithm to determine the initial number of splits
     original\_size\_mb \= utils.get\_file\_size\_mb(pdf\_path)  
-    \# 假设一个25MB的块比较有希望被压缩到2MB  
+    \# Assume that a 25MB block can hopefully be compressed to 2MB
     initial\_k \= min(args.max\_splits, math.ceil(original\_size\_mb / 25))  
     if initial\_k \< 2: initial\_k \= 2
 
     for k in range(initial\_k, args.max\_splits \+ 1):  
-        logging.info(f"尝试拆分为 {k} 部分...")  
+        logging.info(f"Try splitting into {k} parts...")
         pages\_per\_split \= math.ceil(total\_pages / k)  
           
         all\_parts\_successful \= True  
@@ -383,41 +383,41 @@ def run\_splitting\_protocol(pdf\_path, output\_dir, args):
 
             part\_path \= output\_dir / f"{pdf\_path.stem}\_part{i+1}.pdf"  
               
-            \# 1\. 拆分  
+            \# 1\. Split
             if not split\_pdf(pdf\_path, part\_path, start\_page, end\_page):  
-                logging.error(f"拆分第 {i+1} 部分失败。")  
+                logging.error(f"Splitting part {i+1} failed.")
                 all\_parts\_successful \= False  
                 break  
               
-            \# 2\. 对拆分出的部分进行压缩  
-            logging.info(f"对拆分出的文件 {part\_path.name} 进行压缩...")  
-            \# 对拆分后的文件，我们直接使用最激进的策略  
-            \# 注意：这里为了简化，直接调用了迭代压缩，但实际可以传入一个更激进的策略  
+            \# 2\. Compress the split part
+            logging.info(f"Compress the split file {part\_path.name}...")
+            \# For the split files, we directly use the most aggressive strategy
+            \# Note: For simplicity, iterative compression is directly called here, but a more aggressive strategy can actually be passed in.
             success, compressed\_path \= strategy.run\_iterative\_compression(  
                 part\_path, output\_dir, args.target\_size  
             )
 
             if success:  
                 split\_files.append(compressed\_path)  
-                part\_path.unlink() \# 删除未压缩的拆分文件  
+                part\_path.unlink() \# Delete uncompressed split files
             else:  
-                logging.error(f"压缩第 {i+1} 部分失败。增加拆分数量...")  
+                logging.error(f"Compression of part {i+1} failed. Increase the number of splits...")
                 all\_parts\_successful \= False  
-                \# 清理已生成的该轮次文件  
+                \# Clean up the generated files for this round
                 part\_path.unlink(missing\_ok=True)  
                 for f in split\_files:  
                     f.unlink(missing\_ok=True)  
                 break  
           
         if all\_parts\_successful:  
-            logging.info(f"成功将 {pdf\_path.name} 拆分为 {k} 部分并全部压缩成功！")  
+            logging.info(f"Successfully split {pdf\_path.name} into {k} parts and compressed them all successfully!")
             return
 
-    logging.error(f"拆分协议失败：即使拆分为 {args.max\_splits} 部分，也无法完成压缩。")
+    logging.error(f"Split protocol failed: Compression could not be completed even when split into {args.max\_splits} parts.")
 
 #### **orchestrator.py**
 
-此模块是业务流程的核心，它决定了对一个文件应该执行何种操作。
+This module is the core of the business process and determines what operations should be performed on a file.
 
 Python
 
@@ -429,20 +429,20 @@ from compressor import utils, strategy, splitter
 
 def process\_file(file\_path, args):  
     """  
-    处理单个PDF文件的总入口。  
+    General entry point for processing single PDF files.
     """  
-    logging.info(f"================== 开始处理文件: {file\_path.name} \==================")  
+    logging.info(f"================== Start processing file: {file\_path.name} \==================")
       
     try:  
         original\_size\_mb \= utils.get\_file\_size\_mb(file\_path)  
         if original\_size\_mb \< args.target\_size:  
-            logging.info(f"文件大小 ({original\_size\_mb:.2f}MB) 已满足要求，跳过。")  
-            \# 可选：如果需要，可以将文件复制到输出目录  
+            logging.info(f"File size ({original\_size\_mb:.2f}MB) has met the requirements, skip.")
+            \# Optional: files can be copied to the output directory if desired
             \# import shutil  
             \# shutil.copy(file\_path, args.output\_dir)  
             return
 
-        \# 运行迭代压缩  
+        \# Run iterative compression
         success, \_ \= strategy.run\_iterative\_compression(  
             file\_path,  
             Path(args.output\_dir),  
@@ -450,19 +450,19 @@ def process\_file(file\_path, args):
         )
 
         if not success and args.allow\_splitting:  
-            logging.info(f"压缩失败，且已启用拆分功能。启动拆分协议...")  
+            logging.info(f"Compression failed and splitting function is enabled. Start splitting protocol...")
             splitter.run\_splitting\_protocol(file\_path, Path(args.output\_dir), args)  
         elif not success:  
-            logging.warning(f"压缩失败，并且未启用拆分功能。")
+            logging.warning(f"Compression failed and splitting is not enabled.")
 
     except Exception as e:  
-        logging.critical(f"处理文件 {file\_path.name} 时发生意外错误: {e}", exc\_info=True)  
+        logging.critical(f"An unexpected error occurred while processing file {file\_path.name}: {e}", exc\_info=True)
     finally:  
-        logging.info(f"================== 文件处理结束: {file\_path.name} \==================\\n")
+        logging.info(f"================== End of file processing: {file\_path.name} \==================\\n")
 
 #### **main.py**
 
-这是程序的入口点，负责解析命令行参数并启动处理流程。
+This is the entry point of the program and is responsible for parsing command line arguments and starting processing.
 
 Python
 
@@ -475,40 +475,40 @@ from compressor import utils
 import orchestrator
 
 def main():  
-    """主函数：解析参数并分发任务。"""  
+    """Main function: parse parameters and distribute tasks."""
     utils.setup\_logging()  
       
     parser \= argparse.ArgumentParser(  
-        description="基于 archive-pdf-tools 的PDF自动化压缩与拆分工具。",  
+        description="Automated PDF compression and splitting tool based on archive-pdf-tools.",
         formatter\_class=argparse.RawTextHelpFormatter  
     )  
     parser.add\_argument(  
         "--input",  
         required=True,  
-        help\="输入的源路径，可以是一个PDF文件或一个包含PDF文件的目录。"  
+        help\="The input source path can be a PDF file or a directory containing PDF files."
     )  
     parser.add\_argument(  
         "--output-dir",  
         required=True,  
-        help\="处理后文件的存放目录。"  
+        help\="The directory where the processed files are stored."
     )  
     parser.add\_argument(  
         "--target-size",  
         type\=float,  
         default=2.0,  
-        help\="目标文件大小，单位为MB。默认值为 2.0。"  
+        help\="Target file size in MB. Default is 2.0."
     )  
     parser.add\_argument(  
         "--allow-splitting",  
         action="store\_true",  
-        help\="如果提供此参数，则允许在压缩失败时启用拆分功能。"  
+        help\="If this parameter is provided, allows splitting to be enabled when compression fails."
     )  
     parser.add\_argument(  
         "--max-splits",  
         type\=int,  
         default=4,  
         choices=\[2, 3, 4\],  
-        help\="允许的最大拆分数量。默认值为 4。"  
+        help\="Maximum number of splits allowed. Default is 4."
     )  
       
     args \= parser.parse\_args()  
@@ -516,61 +516,61 @@ def main():
     input\_path \= Path(args.input)  
     output\_path \= Path(args.output\_dir)  
       
-    \# 确保输出目录存在  
+    \# Make sure the output directory exists
     output\_path.mkdir(parents=True, exist\_ok=True)  
       
-    logging.info(f"--- 任务开始 \---")  
-    logging.info(f"输入路径: {input\_path}")  
-    logging.info(f"输出目录: {output\_path}")  
-    logging.info(f"目标大小: \< {args.target\_size} MB")  
-    logging.info(f"允许拆分: {'是' if args.allow\_splitting else '否'}")  
+    logging.info(f"---task started \---")
+    logging.info(f"Input path: {input\_path}")
+    logging.info(f"Output directory: {output\_path}")
+    logging.info(f"Target size: \< {args.target\_size} MB")
+    logging.info(f"Allow splitting: {'yes' if args.allow\_splitting else 'no'}")
     if args.allow\_splitting:  
-        logging.info(f"最大拆分: {args.max\_splits} 部分")
+        logging.info(f"Maximum split: {args.max\_splits} part")
 
     if not input\_path.exists():  
-        logging.error(f"输入路径不存在: {input\_path}")  
+        logging.error(f"The input path does not exist: {input\_path}")
         return
 
     if input\_path.is\_dir():  
-        logging.info("输入为目录，开始扫描PDF文件...")  
+        logging.info("Input as directory, start scanning PDF files...")
         pdf\_files \= sorted(list(input\_path.glob("\*.pdf")) \+ list(input\_path.glob("\*.PDF")))  
         if not pdf\_files:  
-            logging.warning("在指定目录中未找到PDF文件。")  
+            logging.warning("The PDF file was not found in the specified directory.")
             return  
           
-        logging.info(f"找到 {len(pdf\_files)} 个PDF文件，准备处理...")  
+        logging.info(f"Found {len(pdf\_files)} PDF files, ready to process...")
         for pdf\_file in pdf\_files:  
             orchestrator.process\_file(pdf\_file, args)  
               
     elif input\_path.is\_file() and input\_path.suffix.lower() \== '.pdf':  
-        logging.info("输入为单个PDF文件，准备处理...")  
+        logging.info("The input is a single PDF file, ready for processing...")
         orchestrator.process\_file(input\_path, args)  
     else:  
-        logging.error("输入路径既不是有效的目录，也不是PDF文件。")
+        logging.error("The input path is neither a valid directory nor a PDF file.")
 
-    logging.info("--- 所有任务已完成 \---")
+    logging.info("--- All tasks completed \---")
 
 if \_\_name\_\_ \== "\_\_main\_\_":  
     main()
 
-### **如何运行**
+### **How ​​to run**
 
-1. **保存文件**：将上述代码块分别保存到 pdf\_compressor/ 目录及其子目录 compressor/ 中对应的文件里。  
-2. **安装依赖**：确保您已按照研究报告的要求，在WSL/Ubuntu环境中安装了 poppler-utils, tesseract-ocr, tesseract-ocr-chi-sim, archive-pdf-tools, 和 qpdf。  
-3. **执行命令**：打开终端，进入 pdf\_compressor/ 的上一级目录，然后运行程序。
+1. **Save file**: Save the above code blocks to the corresponding files in the pdf\_compressor/ directory and its subdirectory compressor/.  
+2. **Installation dependencies**: Make sure you have installed poppler-utils, tesseract-ocr, tesseract-ocr-chi-sim, archive-pdf-tools, and qpdf in the WSL/Ubuntu environment as required in the research report.  
+3. **Execute command**: Open the terminal, enter the upper-level directory of pdf\_compressor/, and then run the program.
 
-**示例命令：**
+**Example command:**
 
-* **处理单个大文件并允许拆分：**  
+* **Handle single large file and allow splitting:**
   Bash  
   python3 pdf\_compressor/main.py \--input /path/to/your/large\_document.pdf \--output-dir /path/to/output \--allow-splitting
 
-* **处理整个文件夹内的所有PDF，使用默认2MB目标大小：**  
+* **Process all PDFs within an entire folder, using the default 2MB target size: **
   Bash  
   python3 pdf\_compressor/main.py \--input /path/to/source\_folder \--output-dir /path/to/processed\_files
 
-* **处理文件，目标设为8MB，不允许拆分：**  
+* **Processing file, target set to 8MB, no splitting allowed:**
   Bash  
   python3 pdf\_compressor/main.py \--input document.pdf \--output-dir./output \--target-size 8.0
 
-所有处理过程的详细信息都将实时显示在控制台，并完整记录在 pdf\_compressor/logs/process.log 文件中，这为调试和跟踪提供了极大的便利。
+All processing details will be displayed on the console in real time and fully recorded in the pdf\_compressor/logs/process.log file, which provides great convenience for debugging and tracing.

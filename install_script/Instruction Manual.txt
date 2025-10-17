@@ -1,0 +1,1 @@
+In the WSL environment under Windows, install a clean Ubuntu24.04 system, and then use an ordinary user (must be an ordinary user) to execute the installation (install_pdf_tools.sh) and verification (verify.sh) scripts.

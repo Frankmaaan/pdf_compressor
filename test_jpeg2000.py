@@ -1,64 +1,64 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # test_jpeg2000.py
-# 测试JPEG2000编码器参数
+# Test JPEG2000 encoder parameters
 
 import sys
 import os
 
-# 添加项目根目录到Python路径
+#Add the project root directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from compressor.strategy import STRATEGIES
 
 def test_jpeg2000_params():
-    """测试所有策略是否包含JPEG2000编码器参数"""
-    print("测试JPEG2000编码器参数配置:")
+    """Test whether all policies include JPEG2000 encoder parameters"""
+    print("Test JPEG2000 encoder parameter configuration:")
     print("=" * 50)
     
     for tier, strategy in STRATEGIES.items():
-        print(f"\n层级 {tier}: {strategy['name']}")
+        print(f"\nLevel {tier}: {strategy['name']}")
         print("-" * 30)
         
         for i, params in enumerate(strategy['params_sequence'], 1):
             dpi = params['dpi']
             bg_downsample = params['bg_downsample']
-            encoder = params.get('jpeg2000_encoder', '未设置')
+            encoder = params.get('jpeg2000_encoder', 'not set')
             
             print(f"  {i}. DPI={dpi}, BG-Downsample={bg_downsample}, JPEG2000={encoder}")
     
-    print(f"\n总结:")
-    print(f"- 总策略层级: {len(STRATEGIES)}")
+    print(f"\nSummary:")
+    print(f"-Total strategy level: {len(STRATEGIES)}")
     
     total_configs = sum(len(strategy['params_sequence']) for strategy in STRATEGIES.values())
-    print(f"- 总参数配置: {total_configs}")
+    print(f"-Total parameter configuration: {total_configs}")
     
-    # 检查所有配置是否都有JPEG2000参数
+    # Check whether all configurations have JPEG2000 parameters
     missing_encoder = []
     for tier, strategy in STRATEGIES.items():
         for i, params in enumerate(strategy['params_sequence']):
             if 'jpeg2000_encoder' not in params:
-                missing_encoder.append(f"层级{tier}-配置{i+1}")
+                missing_encoder.append(f"Level{tier}-configuration{i+1}")
     
     if missing_encoder:
-        print(f"- 缺少JPEG2000参数的配置: {', '.join(missing_encoder)}")
+        print(f"-Missing JPEG2000 parameter configuration: {', '.join(missing_encoder)}")
     else:
-        print(f"- ✅ 所有配置都包含JPEG2000编码器参数")
+        print(f"- ✅ All configurations include JPEG2000 encoder parameters")
 
 def test_command_generation():
-    """测试命令生成逻辑"""
+    """Test command generation logic"""
     print(f"\n" + "=" * 50)
-    print("测试recode_pdf命令生成:")
+    print("Test recode_pdf command generation:")
     print("=" * 50)
     
-    # 模拟参数
+    # Simulation parameters
     test_params = {
         'dpi': 300,
         'bg_downsample': 2,
         'jpeg2000_encoder': 'grok'
     }
     
-    # 模拟命令构建
+    # Simulate command build
     image_stack_glob = "/tmp/test/page-*.tif"
     hocr_file = "/tmp/test/combined.hocr"
     output_pdf = "/tmp/test/output.pdf"
@@ -74,13 +74,13 @@ def test_command_generation():
         "-o", output_pdf
     ]
     
-    print("生成的命令:")
+    print("Generated command:")
     print(" ".join(command))
     
-    print(f"\n参数解析:")
-    print(f"- JPEG2000编码器: {test_params.get('jpeg2000_encoder', 'openjpeg')}")
+    print(f"\nParameter analysis:")
+    print(f"- JPEG2000 encoder: {test_params.get('jpeg2000_encoder', 'openjpeg')}")
     print(f"- DPI: {test_params['dpi']}")
-    print(f"- 背景下采样: {test_params['bg_downsample']}")
+    print(f"- Background sampling: {test_params['bg_downsample']}")
 
 if __name__ == "__main__":
     test_jpeg2000_params()

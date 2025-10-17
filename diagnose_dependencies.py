@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # diagnose_dependencies.py
-# WSL/Ubuntu环境依赖诊断工具
+# WSL/Ubuntu environment dependency diagnostic tool
 
 import subprocess
 import os
@@ -9,21 +9,21 @@ import sys
 from pathlib import Path
 
 def check_tool_detailed(tool_name, install_method=None):
-    """详细检查单个工具的安装状态"""
+    """Check the installation status of individual tools in detail"""
     print(f"\n{'='*50}")
-    print(f"检查工具: {tool_name}")
+    print(f"Check tool: {tool_name}")
     print(f"{'='*50}")
     
-    # 检查which命令
+    # Check which command
     try:
         result = subprocess.run(['which', tool_name], 
                               capture_output=True, 
                               check=True,
                               timeout=5)
         tool_path = result.stdout.decode('utf-8').strip()
-        print(f"✓ 工具路径: {tool_path}")
+        print(f"✓ tool path: {tool_path}")
         
-        # 尝试获取版本信息
+        # Try to get version information
         version_commands = [['--version'], ['--help'], ['-v'], ['-h']]
         version_found = False
         
@@ -32,106 +32,106 @@ def check_tool_detailed(tool_name, install_method=None):
                 ver_result = subprocess.run([tool_name] + cmd,
                                           capture_output=True,
                                           timeout=10)
-                if ver_result.returncode in [0, 1]:  # 成功或帮助信息
+                if ver_result.returncode in [0, 1]: # Success or help information
                     output = ver_result.stdout.decode('utf-8', errors='ignore')
                     if not output:
                         output = ver_result.stderr.decode('utf-8', errors='ignore')
                     
                     if output:
-                        # 只显示前几行
+                        # Show only the first few lines
                         lines = output.split('\n')[:3]
                         clean_output = ' '.join(lines).strip()
                         if clean_output:
-                            print(f"✓ 版本信息: {clean_output}")
+                            print(f"✓ Version information: {clean_output}")
                             version_found = True
                             break
             except:
                 continue
         
         if not version_found:
-            print("⚠ 无法获取版本信息，但工具存在")
+            print("⚠ Unable to obtain version information, but the tool exists")
         
         return True
         
     except subprocess.CalledProcessError:
-        print(f"✗ 工具未找到")
+        print(f"✗ tool not found")
         if install_method:
-            print(f"  安装方法: {install_method}")
+            print(f"Installation method: {install_method}")
         return False
     except Exception as e:
-        print(f"✗ 检查时出错: {e}")
+        print(f"✗ Error while checking: {e}")
         return False
 
 def check_path_configuration():
-    """检查PATH配置"""
+    """Check PATH configuration"""
     print(f"\n{'='*50}")
-    print("PATH配置检查")
+    print("PATH configuration check")
     print(f"{'='*50}")
     
     current_path = os.environ.get('PATH', '')
     path_dirs = current_path.split(':')
     
-    print(f"当前PATH包含 {len(path_dirs)} 个目录:")
-    for i, dir_path in enumerate(path_dirs[:10], 1):  # 只显示前10个
+    print(f"The current PATH contains {len(path_dirs)} directories:")
+    for i, dir_path in enumerate(path_dirs[:10], 1): # Only display the first 10
         exists = "✓" if os.path.exists(dir_path) else "✗"
         print(f"  {i:2d}. {exists} {dir_path}")
     
     if len(path_dirs) > 10:
-        print(f"     ... 还有 {len(path_dirs) - 10} 个目录")
+        print(f" ... there are {len(path_dirs) - 10} directories")
     
-    # 检查重要目录
+    # Check important directories
     important_dirs = [
         '/usr/bin',
         '/usr/local/bin', 
         os.path.expanduser('~/.local/bin')
     ]
     
-    print("\n重要目录检查:")
+    print("\nImportant directory check:")
     for dir_path in important_dirs:
         in_path = dir_path in path_dirs
         exists = os.path.exists(dir_path)
         status = "✓" if in_path and exists else "✗"
-        print(f"  {status} {dir_path} (在PATH: {in_path}, 存在: {exists})")
+        print(f" {status} {dir_path} (in PATH: {in_path}, exists: {exists})")
 
 def check_python_environment():
-    """检查Python环境"""
+    """Check the Python environment"""
     print(f"\n{'='*50}")
-    print("Python环境检查")
+    print("Python environment check")
     print(f"{'='*50}")
     
-    print(f"Python版本: {sys.version}")
-    print(f"Python路径: {sys.executable}")
+    print(f"Python version: {sys.version}")
+    print(f"Python path: {sys.executable}")
     
-    # 检查pip
+    # Check pip
     try:
         result = subprocess.run([sys.executable, '-m', 'pip', '--version'],
                               capture_output=True, check=True, timeout=10)
-        print(f"pip版本: {result.stdout.decode('utf-8').strip()}")
+        print(f"pip version: {result.stdout.decode('utf-8').strip()}")
     except:
-        print("✗ pip不可用")
+        print("✗ pip is not available")
     
-    # 检查pipx
+    # Check pipx
     try:
         result = subprocess.run(['pipx', '--version'],
                               capture_output=True, check=True, timeout=10)
-        print(f"pipx版本: {result.stdout.decode('utf-8').strip()}")
+        print(f"pipx version: {result.stdout.decode('utf-8').strip()}")
     except:
-        print("✗ pipx不可用")
+        print("✗ pipx is not available")
     
-    # 检查archive-pdf-tools
+    # Check archive-pdf-tools
     try:
         result = subprocess.run([sys.executable, '-c', 
                                'import pkg_resources; print(pkg_resources.get_distribution("archive-pdf-tools").version)'],
                               capture_output=True, check=True, timeout=10)
-        print(f"archive-pdf-tools版本: {result.stdout.decode('utf-8').strip()}")
+        print(f"archive-pdf-tools version: {result.stdout.decode('utf-8').strip()}")
     except:
-        print("✗ archive-pdf-tools未通过pip安装")
+        print("✗ archive-pdf-tools is not installed via pip")
 
 def main():
-    print("PDF压缩工具 - 详细依赖诊断")
+    print("PDF compression tool - detailed dependency diagnosis")
     print("="*60)
     
-    # 工具列表和安装方法
+    # Tool list and installation method
     tools_info = {
         'pdftoppm': 'sudo apt install poppler-utils',
         'pdfinfo': 'sudo apt install poppler-utils', 
@@ -140,32 +140,32 @@ def main():
         'recode_pdf': 'pipx install archive-pdf-tools'
     }
     
-    # 检查每个工具
+    # Check each tool
     results = {}
     for tool, install_cmd in tools_info.items():
         results[tool] = check_tool_detailed(tool, install_cmd)
     
-    # 检查PATH和Python环境
+    # Check PATH and Python environment
     check_path_configuration()
     check_python_environment()
     
-    # 总结
+    # Summarize
     print(f"\n{'='*60}")
-    print("诊断总结")
+    print("Diagnosis Summary")
     print(f"{'='*60}")
     
     missing_tools = [tool for tool, found in results.items() if not found]
     
     if missing_tools:
-        print(f"缺少的工具 ({len(missing_tools)}):")
+        print(f"Missing tools ({len(missing_tools)}):")
         for tool in missing_tools:
             print(f"  ✗ {tool}")
-            print(f"    安装: {tools_info[tool]}")
+            print(f"Installation: {tools_info[tool]}")
         
-        print(f"\n推荐操作:")
+        print(f"\nRecommended action:")
         apt_tools = [tool for tool in missing_tools if tool != 'recode_pdf']
         if apt_tools:
-            # 构建apt安装命令
+            # Build apt installation command
             packages = []
             if 'pdftoppm' in apt_tools or 'pdfinfo' in apt_tools:
                 packages.append('poppler-utils')
@@ -179,11 +179,11 @@ def main():
         
         if 'recode_pdf' in missing_tools:
             print(f"  2. pipx install archive-pdf-tools")
-            print(f"     如果没有pipx: sudo apt install pipx")
+            print(f" if there is no pipx: sudo apt install pipx")
     else:
-        print("✓ 所有必要工具都已安装！")
+        print("✓ All necessary tools have been installed!")
     
-    print(f"\n运行主程序检查:")
+    print(f"\nRun the main program to check:")
     print(f"  python3 main.py --check-deps")
 
 if __name__ == "__main__":

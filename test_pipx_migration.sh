@@ -1,149 +1,149 @@
 #!/bin/bash
 
 # test_pipx_migration.sh
-# 测试pipx迁移可能引发的连锁问题
+# Test the chain problems that may be caused by pipx migration
 
 echo "======================================"
-echo "pipx迁移连锁错误测试脚本"
+echo "pipx migration chain error test script"
 echo "======================================"
 
-# 测试1: 检查pipx是否在不同Ubuntu版本中可用
-echo "测试1: pipx可用性检查"
+# Test 1: Check if pipx is available in different Ubuntu versions
+echo "Test 1: pipx availability check"
 echo "----------------------------------------"
 
 if command -v lsb_release &> /dev/null; then
     UBUNTU_VERSION=$(lsb_release -rs)
-    echo "Ubuntu版本: $UBUNTU_VERSION"
+    echo "Ubuntu version: $UBUNTU_VERSION"
     
-    # 检查pipx包是否存在于仓库中
+    # Check whether the pipx package exists in the warehouse
     if apt-cache show pipx &> /dev/null; then
-        echo "✓ pipx包在当前Ubuntu版本的仓库中可用"
+        echo "✓ The pipx package is available in the repository of the current Ubuntu version"
     else
-        echo "⚠ pipx包在当前Ubuntu版本的仓库中不可用"
-        echo "  将使用pip安装方案"
+        echo "⚠ The pipx package is not available in the repository of the current Ubuntu version"
+        echo "will use pip installation solution"
     fi
 else
-    echo "⚠ 无法检测Ubuntu版本"
+    echo "⚠ Unable to detect Ubuntu version"
 fi
 
-# 测试2: 模拟PATH问题
+# Test 2: Simulate PATH problem
 echo ""
-echo "测试2: PATH配置问题模拟"
+echo "Test 2: PATH configuration problem simulation"
 echo "----------------------------------------"
 
 LOCAL_BIN="$HOME/.local/bin"
 if [[ ":$PATH:" == *":$LOCAL_BIN:"* ]]; then
-    echo "✓ ~/.local/bin 已在PATH中"
+    echo "✓ ~/.local/bin is already in PATH"
 else
-    echo "⚠ ~/.local/bin 不在PATH中"
-    echo "  这可能导致recode_pdf命令找不到"
+    echo "⚠ ~/.local/bin is not in PATH"
+    echo "This may cause the recode_pdf command not to be found"
 fi
 
-# 测试3: 检查现有Python环境
+# Test 3: Check existing Python environment
 echo ""
-echo "测试3: Python环境检查"
+echo "Test 3: Python environment check"
 echo "----------------------------------------"
 
 if command -v python3 &> /dev/null; then
     PYTHON_VERSION=$(python3 --version)
-    echo "Python版本: $PYTHON_VERSION"
+    echo "Python version: $PYTHON_VERSION"
     
-    # 检查pip
+    # Check pip
     if python3 -m pip --version &> /dev/null; then
-        echo "✓ pip可用"
+        echo "✓ pip is available"
     else
-        echo "⚠ pip不可用，可能影响备选安装方案"
+        echo "⚠ pip is not available, which may affect alternative installation solutions"
     fi
     
-    # 检查现有的archive-pdf-tools安装
+    # Check for existing archive-pdf-tools installation
     if python3 -c "import pkg_resources; pkg_resources.get_distribution('archive-pdf-tools')" &> /dev/null 2>&1; then
-        echo "⚠ 检测到已有archive-pdf-tools安装（可能通过pip）"
-        echo "  pipx安装可能会产生冲突"
+        echo "⚠ Detected that archive-pdf-tools is already installed (possibly via pip)"
+        echo "pipx installation may cause conflicts"
     else
-        echo "✓ 未检测到现有的archive-pdf-tools安装"
+        echo "✓ No existing archive-pdf-tools installation detected"
     fi
 else
-    echo "❌ Python3未安装"
+    echo "❌ Python3 is not installed"
 fi
 
-# 测试4: 网络连接检查
+# Test 4: Network connection check
 echo ""
-echo "测试4: 网络连接检查"
+echo "Test 4: Network connection check"
 echo "----------------------------------------"
 
 if ping -c 1 pypi.org &> /dev/null; then
-    echo "✓ 可以连接到PyPI"
+    echo "✓ Can connect to PyPI"
 else
-    echo "⚠ 无法连接到PyPI，可能影响包安装"
+    echo "⚠ Unable to connect to PyPI, which may affect package installation"
 fi
 
 if ping -c 1 archive.ubuntu.com &> /dev/null; then
-    echo "✓ 可以连接到Ubuntu软件源"
+    echo "✓ Can connect to Ubuntu software sources"
 else
-    echo "⚠ 无法连接到Ubuntu软件源，可能影响系统包安装"
+    echo "⚠ Unable to connect to Ubuntu software source, which may affect system package installation"
 fi
 
-# 测试5: 权限检查
+# Test 5: Permission check
 echo ""
-echo "测试5: 权限检查"
+echo "Test 5: Permission check"
 echo "----------------------------------------"
 
 if [ -w "$HOME" ]; then
-    echo "✓ 用户主目录可写"
+    echo "✓ The user's home directory is writable"
 else
-    echo "❌ 用户主目录不可写，可能影响pipx安装"
+    echo "❌ The user's home directory is not writable, which may affect pipx installation"
 fi
 
 if [ -w "$HOME/.bashrc" ] || [ ! -f "$HOME/.bashrc" ]; then
-    echo "✓ .bashrc文件可写或不存在"
+    echo "✓ .bashrc file is writable or does not exist"
 else
-    echo "⚠ .bashrc文件不可写，可能影响PATH配置"
+    echo "⚠.bashrc file is not writable and may affect PATH configuration"
 fi
 
-# 测试6: 模拟常见错误场景
+#Test 6: Simulate common error scenarios
 echo ""
-echo "测试6: 常见错误场景模拟"
+echo "Test 6: Common error scenario simulation"
 echo "----------------------------------------"
 
-# 模拟pipx安装失败的情况
-echo "模拟pipx安装失败..."
+#Simulate pipx installation failure
+echo "Simulated pipx installation failed..."
 if ! command -v pipx &> /dev/null; then
-    echo "  当前pipx未安装，这是正常情况"
-    echo "  安装脚本会处理这种情况"
+    echo "Pipx is not currently installed, this is normal"
+    echo "The installation script will handle this situation"
 else
-    echo "  pipx已安装，测试跳过"
+    echo "pipx is installed, test skipped"
 fi
 
-# 测试PATH环境变量修改的影响
+# Test the impact of modifying the PATH environment variable
 OLD_PATH="$PATH"
-export PATH="/usr/bin:/bin"  # 模拟最小PATH
-echo "测试最小PATH环境下的工具检查..."
+export PATH="/usr/bin:/bin" # Simulate minimum PATH
+echo "Test tool check in minimal PATH environment..."
 
 if command -v python3 &> /dev/null; then
-    echo "  ✓ python3在最小PATH中可用"
+    echo "✓ python3 is available in minimal PATH"
 else
-    echo "  ⚠ python3在最小PATH中不可用"
+    echo "⚠ python3 is not available in minimum PATH"
 fi
 
-# 恢复PATH
+# Restore PATH
 export PATH="$OLD_PATH"
 
 echo ""
 echo "======================================"
-echo "测试完成"
+echo "Test completed"
 echo "======================================"
 
 echo ""
-echo "潜在风险总结:"
-echo "1. Ubuntu 20.04及更早版本pipx可能不在默认仓库中"
-echo "2. PATH配置可能需要用户重新加载shell"
-echo "3. 现有pip安装的archive-pdf-tools可能产生冲突"
-echo "4. 网络问题可能导致安装失败"
-echo "5. 权限问题可能影响配置文件修改"
+echo "Summary of potential risks:"
+echo "1. Ubuntu 20.04 and earlier versions of pipx may not be in the default repository"
+echo "2. PATH configuration may require users to reload the shell"
+echo "3. The archive-pdf-tools installed by existing pip may conflict"
+echo "4. Network problems may cause installation failure"
+echo "5. Permission issues may affect configuration file modification"
 echo ""
-echo "缓解措施:"
-echo "1. 安装脚本已添加pip备选方案"
-echo "2. Python代码已自动添加~/.local/bin到PATH"
-echo "3. 安装脚本会检测和处理冲突"
-echo "4. 安装脚本会检查网络连接"
-echo "5. 提供详细的错误信息和解决方案"
+echo "Mitigation measures:"
+echo "1. The installation script has added pip alternative"
+echo "2. Python code has automatically added ~/.local/bin to PATH"
+echo "3. The installation script will detect and handle conflicts"
+echo "4. The installation script will check the network connection"
+echo "5. Provide detailed error information and solutions"

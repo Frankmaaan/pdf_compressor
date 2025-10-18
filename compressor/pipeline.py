@@ -46,7 +46,7 @@ def analyze_images_to_hocr(image_files, temp_dir):
             "tesseract",
             str(img_path),
             str(output_prefix),
-            "-l", "chi_sim", # Simplified Chinese
+            "-l", "eng", # English
             "hocr"
         ]
         if not utils.run_command(command):

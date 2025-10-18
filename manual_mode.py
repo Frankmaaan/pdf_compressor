@@ -86,7 +86,7 @@ def run_manual_interactive():
     """
     print("Enter interactive full manual compression mode (Manual Mode)")
 
-    src = prompt("Please enter the source path (PDF file or directory containing PDF)", None, str)
+    src = prompt("Please enter the source path (PDF file or directory containing PDF)", None, str).strip("'").strip('"')
     if not src:
         print("Source path must be provided, exit.")
         return
@@ -95,7 +95,7 @@ def run_manual_interactive():
         print(f"Source path does not exist: {src_path}")
         return
 
-    dest = prompt("Please enter the destination path (file or directory, depending on the source)", None, str)
+    dest = prompt("Please enter the destination path (file or directory, depending on the source)", None, str).strip("'").strip('"')
     if not dest:
         print("Destination path must be provided, exit.")
         return
